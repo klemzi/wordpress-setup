@@ -1,0 +1,27 @@
+---
+- name: Install apache2
+  ansible.builtin.apt:
+    name: apache2
+    state: present
+  tags: apache
+- name: Create document root
+  ansible.builtin.file:
+    path: "/var/www/{{ root_dir }}"
+    state: directory
+    owner: root
+    mode: 0777
+  tags: apache
+- name: Copy config file
+  ansible.builtin.template:
+    src: ../templates/apache-config.conf.j2
+    dest: /etc/apache2/sites-available/{{ apache_conf }}
+  notify: Reload apache
+  tags: apache
+- name: Enable wordpress site
+  ansible.builtin.shell: /usr/sbin/a2ensite {{ apache_conf }}
+  notify: Reload apache
+  tags: apache
+- name: Disable default site
+  ansible.builtin.shell: /usr/sbin/a2dissite 000-default.conf
+  notify: Reload apache
+  tags: apache

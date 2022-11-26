@@ -1,0 +1,16 @@
+---
+# MySQL Root password
+mysql_root_password: clementSLDevOps
+
+# Wordpress
+wordpress_db_user: wpuser
+wordpress_db_password: wordPress01
+wordpress_db_name: wordpress_db
+
+# requirements
+requirements: ['php', 'php-mysql', 'libapache2-mod-php', 'python3', 'zip']
+
+# apache2
+root_dir: wp
+apache_conf: wp-apache.conf
+server_port: 80

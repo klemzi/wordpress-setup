@@ -1,0 +1,57 @@
+---
+- name: Installing MySQL and Dependencies
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop:
+    - mysql-server
+    - mysql-client
+    - python3-mysqldb
+    - libmysqlclient-dev
+  tags: mysql
+- name: Ensure MYSQL is started at boot
+  service:
+    name: mysql
+    state: started
+    enabled: true
+  tags: mysql
+- name: Root password
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+  tags: mysql
+  ignore_errors: true
+- name: Removes all anonymous user accounts
+  community.mysql.mysql_user:
+    name: ''
+    host_all: true
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: mysql
+- name: Removes the MySQL test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: mysql
+- name: Create wordpress DB using root user
+  community.mysql.mysql_db:
+    name: "{{ wordpress_db_name }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: mysql
+- name: "Creating wordpress user with full priviledges on {{ wordpress_db_name }}"
+  community.mysql.mysql_user:
+    name: "{{ wordpress_db_user }}"
+    password: "{{ wordpress_db_password }}"
+    state: present
+    priv: "{{ wordpress_db_name }}.*:ALL"
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: mysql

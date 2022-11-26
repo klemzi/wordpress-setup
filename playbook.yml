@@ -1,0 +1,34 @@
+# Clement Dike
+# PG - Configuration Management
+# wordpress on ubuntu 22.04
+---
+- name: Wordpress setup
+  hosts: wp_server
+  become: true
+  vars_files:
+    - vars/default.yml
+  pre_tasks:
+    - name: Update cache
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ requirements }}"
+  handlers:
+    - name: Reload apache
+      ansible.builtin.service:
+        name: apache2
+        state: reloaded
+  tasks:
+    - name: MySQL
+      ansible.builtin.include_tasks:
+        file: tasks/mysql.yml
+      tags: mysql
+    - name: Apache
+      ansible.builtin.include_tasks:
+        file: tasks/apache.yml
+    - name: Wordpress
+      ansible.builtin.include_tasks:
+        file: tasks/wordpress.yml

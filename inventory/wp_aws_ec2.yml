@@ -1,0 +1,9 @@
+plugin: aws_ec2
+regions: us-east-1
+aws_profile: default
+filters:
+  instance-state-name: running
+groups:
+  wp_server: tags.Name == 'wordpress'
+compose:
+  ansible_host: public_dns_name

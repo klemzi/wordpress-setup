@@ -1,0 +1,26 @@
+---
+- name: Download WordPress
+  ansible.builtin.get_url:
+    url: https://wordpress.org/latest.zip
+    dest: /tmp/wordpress.zip
+  tags: wordpress
+- name: Unzip WordPress
+  ansible.builtin.unarchive:
+    src: /tmp/wordpress.zip
+    dest: /tmp
+    copy: false
+    creates: /tmp/wordpress/wp-settings.php
+  tags: wordpress
+- name: Copy files into apache directory
+  ansible.builtin.copy:
+    src: /tmp/wordpress/.
+    dest: /var/www/{{ root_dir }}
+    remote_src: true
+  tags: wordpress
+- name: Copy wordpress config file
+  ansible.builtin.template:
+    src: templates/wp-config.php.j2
+    dest: /var/www/{{ root_dir }}/wp-config.php
+    owner: root
+    mode: 0777
+  tags: wordpress
